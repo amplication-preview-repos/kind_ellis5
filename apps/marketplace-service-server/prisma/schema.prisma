@@ -1,0 +1,124 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  createdAt   DateTime @default(now())
+  description String?
+  id          String   @id @default(cuid())
+  name        String?
+  orders      Order[]
+  price       Float?
+  store       Store?   @relation(fields: [storeId], references: [id])
+  storeId     String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  client         Client?     @relation(fields: [clientId], references: [id])
+  clientId       String?
+  createdAt      DateTime    @default(now())
+  id             String      @id @default(cuid())
+  logisticsItems Logistics[]
+  payments       Payment[]
+  product        Product?    @relation(fields: [productId], references: [id])
+  productId      String?
+  quantity       Int?
+  updatedAt      DateTime    @updatedAt
+}
+
+model Store {
+  createdAt   DateTime  @default(now())
+  description String?
+  id          String    @id @default(cuid())
+  name        String?
+  ownerId     String?
+  products    Product[]
+  updatedAt   DateTime  @updatedAt
+}
+
+model Payment {
+  amount        Float?
+  createdAt     DateTime                  @default(now())
+  id            String                    @id @default(cuid())
+  order         Order?                    @relation(fields: [orderId], references: [id])
+  orderId       String?
+  paymentMethod EnumPaymentPaymentMethod?
+  status        EnumPaymentStatus?
+  updatedAt     DateTime                  @updatedAt
+}
+
+model Client {
+  createdAt   DateTime @default(now())
+  email       String?
+  id          String   @id @default(cuid())
+  name        String?
+  orders      Order[]
+  phoneNumber String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Logistics {
+  createdAt       DateTime             @default(now())
+  deliveryAddress String?
+  id              String               @id @default(cuid())
+  order           Order?               @relation(fields: [orderId], references: [id])
+  orderId         String?
+  status          EnumLogisticsStatus?
+  updatedAt       DateTime             @updatedAt
+}
+
+model User {
+  createdAt DateTime      @default(now())
+  email     String?       @unique
+  firstName String?
+  id        String        @id @default(cuid())
+  isActive  Boolean?
+  lastName  String?
+  password  String
+  role      EnumUserRole?
+  roles     Json
+  updatedAt DateTime      @updatedAt
+  username  String        @unique
+}
+
+model DeliveryService {
+  contactInfo    String?
+  createdAt      DateTime        @default(now())
+  deliveryAgents DeliveryAgent[]
+  id             String          @id @default(cuid())
+  name           String?
+  updatedAt      DateTime        @updatedAt
+}
+
+model DeliveryAgent {
+  createdAt         DateTime         @default(now())
+  deliveryService   DeliveryService? @relation(fields: [deliveryServiceId], references: [id])
+  deliveryServiceId String?
+  email             String?
+  id                String           @id @default(cuid())
+  name              String?
+  phoneNumber       String?
+  updatedAt         DateTime         @updatedAt
+}
+
+enum EnumPaymentPaymentMethod {
+  Option1
+}
+
+enum EnumPaymentStatus {
+  Option1
+}
+
+enum EnumLogisticsStatus {
+  Option1
+}
+
+enum EnumUserRole {
+  Option1
+}
